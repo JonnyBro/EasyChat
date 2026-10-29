@@ -1,6 +1,6 @@
 local TAG = "EasyChatModuleVoiceHUD"
-local EC_VOICE_HUD = CreateClientConVar("easychat_voice_hud", "1", true, false, "Should we use EasyChat's voice hud")
-local EC_VOICE_RINGS = CreateClientConVar("easychat_voice_rings", "1", true, false, "Should we draw voice rings under the player")
+local EC_VOICE_HUD = CreateClientConVar("easychat_voice_hud", "0", true, false, "Should we use EasyChat's voice hud")
+local EC_VOICE_RINGS = CreateClientConVar("easychat_voice_rings", "0", true, false, "Should we draw voice rings under the player")
 EasyChat.RegisterConvar(EC_VOICE_HUD, "Use EasyChat's voice HUD")
 EasyChat.RegisterConvar(EC_VOICE_RINGS, "Draw voice rings under players")
 
@@ -99,7 +99,7 @@ function PANEL:Paint(w, h)
 	end
 
 	if hook.Run("HUDShouldDraw","CHudVoiceStatus") == false then return end
-	
+
 	local bg_color = EasyChat.OutlayColor
 	surface.SetDrawColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
 	surface.DrawRect(0, 0, w, h)

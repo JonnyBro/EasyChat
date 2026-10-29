@@ -568,7 +568,7 @@ if CLIENT then
 	local EC_TIMESTAMPS_COLOR = CreateConVar("easychat_timestamps_color", "255 255 255", FCVAR_ARCHIVE, "Color timestamps display in")
 
 	-- chatbox panel
-	local EC_TAGS_IN_CHATBOX = CreateConVar("easychat_tags_in_chatbox", "1", FCVAR_ARCHIVE, "Display tags in the chatbox")
+	local EC_TAGS_IN_CHATBOX = CreateConVar("easychat_tags_in_chatbox", "0", FCVAR_ARCHIVE, "Display tags in the chatbox")
 	local EC_GLOBAL_ON_OPEN = CreateConVar("easychat_global_on_open", "1", FCVAR_ARCHIVE, "Set the chat to always open global chat tab on open")
 	local EC_FONT = CreateConVar("easychat_font", "Roboto", FCVAR_ARCHIVE, "Set the font to use for the chat")
 	local EC_FONT_SIZE = CreateConVar("easychat_font_size", "17", FCVAR_ARCHIVE, "Set the font size for chatbox")
@@ -1324,9 +1324,32 @@ if CLIENT then
 		display_text = display_text or text
 
 		if not EC_TAGS_IN_CHATBOX:GetBool() and ec_markup then
-			-- expensive but its not a behavior we want to encourage, so too bad :v
 			text = ec_markup.GetText(text)
-			display_text = ec_markup.GetText(display_text)
+
+			if richtext.HistoryName then
+				richtext.Log = richtext.Log and richtext.Log .. text or text
+			end
+
+			-- richtext can't draw animated tags, but colors are worth keeping
+			local base_color = richtext.GetLastColorChange and richtext:GetLastColorChange()
+			local mk = ec_markup.Parse(display_text)
+			for _, line in ipairs(mk.Lines) do
+				for _, component in ipairs(line.Components) do
+					if component.Color then
+						richtext:InsertColorChange(component.Color.r, component.Color.g, component.Color.b, 255)
+					elseif component.Type == "text" then
+						richtext:AppendText(component.Content)
+					elseif component.Type == "stop" and base_color then
+						richtext:InsertColorChange(base_color.r, base_color.g, base_color.b, 255)
+					end
+				end
+			end
+
+			if base_color then
+				richtext:InsertColorChange(base_color.r, base_color.g, base_color.b, 255)
+			end
+
+			return
 		end
 
 		if richtext.HistoryName then
