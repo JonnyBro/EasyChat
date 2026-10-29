@@ -1333,7 +1333,11 @@ if CLIENT then
 			-- richtext can't draw animated tags, but colors are worth keeping
 			local base_color = richtext.GetLastColorChange and richtext:GetLastColorChange()
 			local mk = ec_markup.Parse(display_text)
-			for _, line in ipairs(mk.Lines) do
+			for i, line in ipairs(mk.Lines) do
+				if i > 1 then
+					richtext:AppendText("\n")
+				end
+
 				for _, component in ipairs(line.Components) do
 					if component.Color then
 						richtext:InsertColorChange(component.Color.r, component.Color.g, component.Color.b, 255)
